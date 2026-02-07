@@ -1,0 +1,111 @@
+# 6 лаборатоная
+
+#1 Задание
+print("1 Задние")
+
+def convert_hours_minutes(time, hours, minu):
+    if hours == 'h' and minu == 'm':
+        return time * 60
+    elif hours == 'm' and minu == 'h':
+        return time / 60
+    else:
+        return None
+
+me = input("ВВедите (пример: 4h m ): ")
+p = me.split()
+
+if len(p) == 2:
+    Ip = p[0]
+    minu = p[1]
+    i = 0
+
+    while i < len(Ip) and (Ip[i].isdigit() or Ip[i] == '.'):
+        i +=1
+
+    time = float(Ip[:i])
+    hours = Ip[i:]
+    res = convert_hours_minutes(time, hours, minu)
+
+    if res is not None:
+        print(f"{res}{minu}")
+    else:
+        print("Ошибка")
+else:
+    print("ведите значения")
+    print("Пример: 4h m")
+
+
+#2 Задание
+print("2 Задание")
+
+def calculate_profict(vcl, srok):
+    if vcl < 30000:
+        print("Минимальный вклад 30000")
+    cr = min((vcl// 10000)*0.3, 5)
+    if srok <=3:
+        r = 3
+    elif 4 <= srok <= 6:
+        r = 5
+    else:
+        r = 2
+    ra = r + cr
+    te = vcl
+
+    for srok in range(srok):
+        ni = te * (ra / 100)
+        te += ni
+
+    profict = te - vcl
+    return round(profict, 2)
+vcl = float(input("Введите сумму вклада: "))
+srok = int(input("Введите срок вклада: "))
+res = calculate_profict(vcl, srok)
+print(f"Ваша прибыль: {res}")
+
+
+#3 Задание
+print("3 Задание")
+a = int(input("Введите первое число: "))
+b = int(input("Введите последнеее число: "))
+if a > b:
+    print("Ошибка: начало больше конца")
+else:
+    r = []
+    for n in range(a, b + 1):
+        if n > 1 and all(n %i !=0 for i in range(2, int(n ** 0.5) + 1)):
+            r.append(str(n))
+
+    if r:
+        print(", ".join(r))
+    else:
+        print("Ошибка")
+
+#4 Задание
+print("4 Задание")
+import numpy as np
+
+def matrix():
+    n = int(input("Размер матрицы: "))
+    print("Матрица 1: ")
+    m1 = np.array([list(map(float, input().split())) for _ in range(n)])
+
+    print("Матрица 2: ")
+    m2 = np.array([list(map(float, input().split())) for _ in range(n)])
+    res = np.add(m1, m2)
+    print("Сумма")
+    print(res)
+matrix()
+
+
+print("5 Задание")
+def i():
+    s = input("Введите фразу для определения, является ли она палиндромом: ")
+    s = s.lower()
+    c = " ,.!?-:;\"'()"
+    for char in c:
+        s = s.replace(char, "")
+    if s == s[::-1]:
+        return "Да"
+    else:
+        return "Нет"
+print(i())
