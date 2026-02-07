@@ -1,0 +1,77 @@
+print("1 Задание")
+num = [1, 23, 453, 64334, 3, 5, 3445]
+for i in range(len(num)):
+    if num[i] == 3:
+        num[i] = 30
+print(num)
+
+print("2 Задание")
+num = [2, 54, 34, 634]
+c = [i**2 for i in num]
+print(c)
+
+print("3 Задание")
+num = [4, 5748, 843, 8372, 95038, 93679, 3876, 7, 487]
+c = max(num)
+f = len(num)
+d = c%f
+print(d)
+
+print("4 Задание")
+t = (1, 45, 6, 3, 2, 78, 62, 43)
+res = tuple(sorted(t)) if all(isinstance(x, (int, float))for x in t) else t
+print(res)
+
+print("5 ЗАдаание")
+gor = {"Тонер": 2000, "Шапка": 637, "Перчатки": 478, "Jagermeister": 2390}
+c = max(gor)
+m = min(gor)
+print(c, m)
+
+print("6 Задание")
+ru = ['gon', 'joj', 'kio']
+ji = {i: i for i in ru}
+print(ji)
+
+print("7 Задаание")
+ng = {'apple': 'яблоко', 'banana': 'банан', 'cat': 'кот', 'dog': 'собака'}
+re = input("Введите русское слово: ")
+for nm, ru in ng.items():
+    if ru == re:
+        print(f"Перевод: {nm}")
+        break
+
+print("8 Задание")
+import random
+oi = ['камень', 'ножницы', 'бумага', 'ящерица', 'спок']
+ruk = {'камень':['ножницы', 'ящерица'], 'бумага':['камень', 'спок'], 'ножницы':['ящерица','бумага'], 'ящерица':['бумага', 'спок'], 'спок':['ножницы', 'камень']}
+me = input("Введите элемент ")
+id = random.choice(oi)
+if me not in ruk:
+    print("проиграл")
+else:
+    print(f"Вы {me}, комп {id}")
+    if id in ruk[me]:
+        print("Выиграл")
+    elif me in ruk[id]:
+        print("проиграл")
+    else:
+        print("Ничья")
+
+
+print("9 Задание")
+um = ["яблоко", "ячьмень", "рука", "резка", "бумага", "бомж"]
+res = {}
+for i in um:
+    l = i[0]
+    if l not in res:
+        res[l] = []
+    res[l].append(i)
+print(res)
+
+print("10 Задание")
+l = [("Анна", [5, 4, 5]), ("Иван", [5, 3, 2]), ("Мария", [4, 4, 4])]
+j = {name: sum(g)/len(g) for name , g in l}
+f = max(j, key = j.get)
+print(f"{f} Наивысший балл: {j[f]}")
+
