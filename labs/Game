@@ -1,0 +1,513 @@
+import random
+def generate_character():
+    races = {"1": {"name": "Человек",
+                   "hp_range": (80, 100),
+                   "atk_range": (10, 15),
+                   "def_range": (5, 8),
+                   "agi_range": (8, 12),
+                   "height_range": (165, 185),
+                   "weight_range": (60, 85)},
+             "2": {
+                 "name": "Эльф",
+                 "hp_range": (60, 85),
+                 "atk_range": (12, 18),
+                 "def_range": (3, 6),
+                 "agi_range": (15, 20),
+                 "height_range": (170, 190),
+                 "weight_range": (50, 70)},
+             "3": {
+                 "name": "Дворф",
+                 "hp_range": (100, 130),
+                 "atk_range": (8, 14),
+                 "def_range": (10, 15),
+                 "agi_range": (5, 10),
+                 "height_range": (140, 160),
+                 "weight_range": (70, 100)
+             }
+             }
+    print("Выберите расу:")
+    for key, race in races.items():
+        print(f"{key} - {race['name']}")
+    while True:
+        choice = input("> ")
+        if choice in races:
+            race = races[choice]
+            hp = random.randint(*race["hp_range"])
+            attack = random.randint(*race["atk_range"])
+            defense = random.randint(*race["def_range"])
+            agility = random.randint(*race["agi_range"])
+            height = random.randint(*race["height_range"])
+            weight = random.randint(*race["weight_range"])
+            return Character(race["name"], hp, attack, defense, agility, height, weight)
+
+class Character:
+    def __init__(self, race, hp, attack, defense, agility, height, weight):
+        self.race = race
+        self.hp = hp
+        self.max_hp = hp
+        self.attack = attack
+        self.defense = defense
+        self.agility = agility
+        self.height = height
+        self.weight = weight
+        self.level = 1
+        self.exp = 0
+        self.exp_to_next_level = 100
+        self.skill_points = 0
+        self.inventory = []
+        self.equipment = {"weapon": None, "armor": None}
+        self.gold = 0
+
+    def take_damage(self, damage):
+        self.hp = max(0, self.hp - damage)
+        return self.hp <= 0
+
+    def heal(self, amount):
+        self.hp = min(self.max_hp, self.hp + amount)
+
+    def add_exp(self, exp):
+        self.exp += exp
+        print(f"Получено {exp} опыта!")
+        if self.exp >= self.exp_to_next_level:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.exp -= self.exp_to_next_level
+        self.exp_to_next_level = int(self.exp_to_next_level * 1.5)
+        self.skill_points += 3
+        self.max_hp += 10
+        self.hp = self.max_hp
+        print(f"\n🎉 Уровень повышен! Теперь вы {self.level} уровня!")
+        print(f"Доступно очков прокачки: {self.skill_points}")
+
+    def show_stats(self):
+        print(f"\n{'=' * 40}")
+        print(f"ПЕРСОНАЖ: {self.race}")
+        print(f"Уровень: {self.level} | Опыт: {self.exp}/{self.exp_to_next_level}")
+        print(f"Очки прокачки: {self.skill_points}")
+        print(f"HP: {self.hp}/{self.max_hp}")
+        print(f"Атака: {self.attack} | Защита: {self.defense}")
+        print(f"Ловкость: {self.agility} | Золото: {self.gold}")
+        print(f"Рост: {self.height}см | Вес: {self.weight}кг")
+        print(f"Оружие: {self.equipment['weapon'].name if self.equipment['weapon'] else 'Нет'}")
+        print(f"Броня: {self.equipment['armor'].name if self.equipment['armor'] else 'Нет'}")
+        print(f"{'=' * 40}")
+
+    def distribute_skill_points(self):
+        while self.skill_points > 0:
+            print(f"\nОчков прокачки: {self.skill_points}")
+            print("1. +10 к HP")
+            print("2. +2 к атаке")
+            print("3. +2 к защите")
+            print("4. +2 к ловкости")
+            print("5. Выйти")
+            choice = input("Выберите улучшение: ")
+            if choice == "5":
+                break
+            if choice == "1":
+                self.max_hp += 10
+                self.hp += 10
+                self.skill_points -= 1
+                print("HP увеличены на 10!")
+            elif choice == "2":
+                self.attack += 2
+                self.skill_points -= 1
+                print("Атака увеличена на 2!")
+            elif choice == "3":
+                self.defense += 2
+                self.skill_points -= 1
+                print("Защита увеличена на 2!")
+            elif choice == "4":
+                self.agility += 2
+                self.skill_points -= 1
+                print("Ловкость увеличена на 2!")
+
+
+class Item:
+    def __init__(self, name, item_type, value=0):
+        self.name = name
+        self.type = item_type
+        self.value = value
+
+
+class Weapon(Item):
+    def __init__(self, name, attack_bonus):
+        super().__init__(name, "weapon")
+        self.attack_bonus = attack_bonus
+
+
+class Armor(Item):
+    def __init__(self, name, defense_bonus):
+        super().__init__(name, "armor")
+        self.defense_bonus = defense_bonus
+
+
+class Potion(Item):
+    def __init__(self, name, heal_amount):
+        super().__init__(name, "potion")
+        self.heal_amount = heal_amount
+
+
+def show_inventory(player):
+    print(f"\n{'=' * 40}")
+    print("ИНВЕНТАРЬ:")
+    print(f"Золото: {player.gold}")
+    if not player.inventory:
+        print("Инвентарь пуст")
+    else:
+        for i, item in enumerate(player.inventory, 1):
+            if item.type == "potion":
+                print(f"{i}. {item.name} (восстанавливает {item.heal_amount} HP)")
+            elif item.type == "weapon":
+                print(f"{i}. {item.name} (+{item.attack_bonus} к атаке)")
+            elif item.type == "armor":
+                print(f"{i}. {item.name} (+{item.defense_bonus} к защите)")
+            else:
+                print(f"{i}. {item.name}")
+    print("\nЭкипировано:")
+    weapon = player.equipment["weapon"]
+    armor = player.equipment["armor"]
+    print(f"Оружие: {weapon.name if weapon else 'Нет'}")
+    print(f"Броня: {armor.name if armor else 'Нет'}")
+
+    while True:
+        action = input("\n1. Использовать предмет\n2. Экипировать предмет\n3. Выбросить предмет\n4. Выйти\n> ")
+        if action == "1" and player.inventory:
+            try:
+                idx = int(input("Номер предмета: ")) - 1
+                if 0 <= idx < len(player.inventory):
+                    item = player.inventory[idx]
+                    if item.type == "potion":
+                        player.heal(item.heal_amount)
+                        player.inventory.pop(idx)
+                        print(f"Использовано {item.name}!")
+                    else:
+                        print("Этот предмет нельзя использовать!")
+                else:
+                    print("Неверный номер предмета!")
+            except ValueError:
+                print("Введите число!")
+        elif action == "2" and player.inventory:
+            try:
+                idx = int(input("Номер предмета: ")) - 1
+                if 0 <= idx < len(player.inventory):
+                    item = player.inventory[idx]
+                    if item.type == "weapon":
+                        if player.equipment["weapon"]:
+                            player.inventory.append(player.equipment["weapon"])
+                        player.equipment["weapon"] = item
+                        player.inventory.pop(idx)
+                        print(f"Экипировано {item.name}!")
+                    elif item.type == "armor":
+                        if player.equipment["armor"]:
+                            player.inventory.append(player.equipment["armor"])
+                        player.equipment["armor"] = item
+                        player.inventory.pop(idx)
+                        print(f"Экипировано {item.name}!")
+                    else:
+                        print("Этот предмет нельзя экипировать!")
+                else:
+                    print("Неверный номер предмета!")
+            except ValueError:
+                print("Введите число!")
+        elif action == "3" and player.inventory:
+            try:
+                idx = int(input("Номер предмета: ")) - 1
+                if 0 <= idx < len(player.inventory):
+                    item = player.inventory.pop(idx)
+                    print(f"Выброшено {item.name}!")
+                else:
+                    print("Неверный номер предмета!")
+            except ValueError:
+                print("Введите число!")
+        elif action == "4":
+            break
+        else:
+            print("Неверная команда!")
+
+
+class Enemy:
+    def __init__(self, name, hp, attack, defense, agility, exp_reward, gold_reward):
+        self.name = name
+        self.hp = hp
+        self.max_hp = hp
+        self.attack = attack
+        self.defense = defense
+        self.agility = agility
+        self.exp_reward = exp_reward
+        self.gold_reward = gold_reward
+
+    def is_alive(self):
+        return self.hp > 0
+
+    def take_damage(self, damage):
+        self.hp = max(0, self.hp - damage)
+
+    def show_info(self):
+        print(f"{self.name} | HP: {self.hp}/{self.max_hp} | Атака: {self.attack} | Ловкость: {self.agility}")
+
+
+class Room:
+    def __init__(self, room_type, description, visible=True):
+        self.type = room_type
+        self.description = description
+        self.visible = visible
+        self.visited = False
+        self.content = None
+
+    def enter(self, player, floor):
+        print(f"\n{'=' * 40}")
+        print(f"Этаж {floor}")
+        print(f"Комната: {self.description}")
+        self.visited = True
+
+        if self.type == "combat":
+            self.combat_room(player, floor)
+        elif self.type == "rest":
+            self.rest_room(player)
+        elif self.type == "treasure":
+            self.treasure_room(player, floor)
+        else:
+            print("Пустая комната. Ничего интересного.")
+
+    def combat_room(self, player, floor):
+        enemy = generate_enemy(floor)
+        print(f"В комнате враг: {enemy.name}!")
+        combat(player, enemy)
+
+    def rest_room(self, player):
+        print("Комната отдыха. Вы чувствуете себя в безопасности.")
+        player.hp = min(player.max_hp, player.hp + 20)
+        print(f"Восстановлено 20 HP. Теперь у вас {player.hp}/{player.max_hp} HP.")
+        if player.skill_points > 0:
+            use = input("Хотите распределить очки прокачки? (да/нет): ").lower()
+            if use == "да":
+                player.distribute_skill_points()
+
+    def treasure_room(self, player, floor):
+        print("Вы нашли сундук!")
+        treasure = random.choice(["gold", "potion", "weapon", "armor"])
+        if treasure == "gold":
+            gold = random.randint(50, 150) * floor
+            player.gold += gold
+            print(f"Вы нашли {gold} золота!")
+        elif treasure == "potion":
+            potion = Potion("Зелье здоровья", 50)
+            player.inventory.append(potion)
+            print(f"Вы нашли {potion.name}!")
+        elif treasure == "weapon":
+            weapon = Weapon(f"Меч {floor} этажа", 5 + floor * 2)
+            player.inventory.append(weapon)
+            print(f"Вы нашли {weapon.name} (+{weapon.attack_bonus} к атаке)!")
+        else:
+            armor = Armor(f"Броня {floor} этажа", 3 + floor * 2)
+            player.inventory.append(armor)
+            print(f"Вы нашли {armor.name} (+{armor.defense_bonus} к защите)!")
+
+
+def generate_enemy(floor):
+    enemy_types = [
+        {"name": "Гоблин", "hp_range": (30, 50), "atk_range": (5, 10), "def_range": (2, 5), "agi_range": (5, 10)},
+        {"name": "Скелет", "hp_range": (40, 60), "atk_range": (7, 12), "def_range": (3, 6), "agi_range": (3, 8)},
+        {"name": "Орк", "hp_range": (60, 90), "atk_range": (10, 15), "def_range": (5, 8), "agi_range": (2, 6)},
+    ]
+
+    enemy_type = random.choice(enemy_types)
+    hp = random.randint(*enemy_type["hp_range"]) + floor * 10
+    attack = random.randint(*enemy_type["atk_range"]) + floor * 2
+    defense = random.randint(*enemy_type["def_range"]) + floor
+    agility = random.randint(*enemy_type["agi_range"]) + floor // 2
+    exp = (hp + attack) * 2 + floor * 10
+    gold = random.randint(20, 60) + floor * 10
+    return Enemy(enemy_type["name"], hp, attack, defense, agility, exp, gold)
+
+
+def generate_room(floor):
+    room_types = ["combat", "rest", "treasure", "empty"]
+    weights = [0.4, 0.2, 0.3, 0.1]
+    room_type = random.choices(room_types, weights=weights)[0]
+    visible = random.random() < 0.7
+    descriptions = {
+        "combat": ["Зловещая комната с лужами крови", "Зал с угрожающими статуями", "Темный коридор"],
+        "rest": ["Уютная комната с камином", "Спальня с мягкой кроватью", "Библиотека с старыми книгами"],
+        "treasure": ["Комната с сияющим сундуком", "Сокровищница", "Склад с древними реликвиями"],
+        "empty": ["Пустой зал", "Заброшенная комната", "Разрушенный коридор"]
+    }
+
+    description = random.choice(descriptions[room_type])
+    if not visible:
+        description = "Темная комната (неизвестно что внутри)"
+    return Room(room_type, description, visible)
+
+
+def combat(player, enemy):
+    print(f"\n⚔️ БОЙ С {enemy.name.upper()} ⚔️")
+    round_num = 1
+
+    while enemy.is_alive() and player.hp > 0:
+        print(f"\n{'—' * 30}")
+        print(f"РАУНД {round_num}")
+        print(f"{'—' * 30}")
+        enemy.show_info()
+        print(f"Ваше HP: {player.hp}/{player.max_hp}")
+        print(f"Ваша ловкость: {player.agility} | Ловкость врага: {enemy.agility}")
+
+        print("\nДействия:")
+        print("1. Атаковать")
+        print("2. Использовать зелье")
+        print("3. Уклониться с контратакой")
+        action = input("Выберите действие: ")
+
+        if action == "1":
+            player_attack = player.attack
+            if player.equipment["weapon"]:
+                player_attack += player.equipment["weapon"].attack_bonus
+            damage = max(1, player_attack - enemy.defense // 2 + random.randint(-2, 2))
+            enemy.take_damage(damage)
+            print(f"\n💢 Вы нанесли {damage} урона {enemy.name}!")
+
+            # Враг атакует в ответ
+            if enemy.is_alive():
+                enemy_damage = max(1, enemy.attack - player.defense // 2)
+                if player.equipment["armor"]:
+                    enemy_damage -= player.equipment["armor"].defense_bonus
+                enemy_damage = max(1, enemy_damage)
+                died = player.take_damage(enemy_damage)
+                print(f"💢 {enemy.name} наносит вам {enemy_damage} урона в ответ!")
+                if died:
+                    print("\n💀 Вы погибли!")
+                    return False
+
+        elif action == "2":
+            potions = [item for item in player.inventory if item.type == "potion"]
+            if potions:
+                potion = potions[0]
+                player.heal(potion.heal_amount)
+                player.inventory.remove(potion)
+                print(f"\n💚 Вы использовали {potion.name} и восстановили {potion.heal_amount} HP!")
+                if enemy.is_alive():
+                    enemy_damage = max(1, enemy.attack - player.defense // 2)
+                    if player.equipment["armor"]:
+                        enemy_damage -= player.equipment["armor"].defense_bonus
+                    enemy_damage = max(1, enemy_damage)
+                    print(f"⚠️  Пока вы лечитесь, {enemy.name} атакует!")
+                    died = player.take_damage(enemy_damage)
+                    print(f"💢 {enemy.name} наносит вам {enemy_damage} урона!")
+                    if died:
+                        print("\n💀 Вы погибли!")
+                        return False
+            else:
+                print("\n❌ У вас нет зелий!")
+                continue
+
+        elif action == "3":
+            dodge_chance = player.agility / (player.agility + enemy.agility + 1)
+            dodge_roll = random.random()
+
+            print(f"\n🔄 Вы пытаетесь уклониться и контратаковать...")
+            print(f"Шанс уклонения: {dodge_chance * 100:.1f}%")
+
+            if dodge_roll < dodge_chance:
+                print(f"✨ УСПЕХ! Вы ловко уклоняетесь от атаки!")
+                counter_damage = max(1, player.attack + player.agility // 2 - enemy.defense // 2)
+                if player.equipment["weapon"]:
+                    counter_damage += player.equipment["weapon"].attack_bonus
+                counter_damage = max(1, counter_damage + random.randint(-1, 3))
+                enemy.take_damage(counter_damage)
+                print(f"⚡ КОНТРАТАКА! Вы наносите {counter_damage} урона!")
+                print(f"✅ Враг промахивается и не наносит урон!")
+            else:
+                print(f"❌ НЕУДАЧА! Вы не смогли уклониться!")
+                enemy_damage = max(1, enemy.attack + 2 - player.defense // 2)
+                if player.equipment["armor"]:
+                    enemy_damage -= player.equipment["armor"].defense_bonus
+                enemy_damage = max(1, enemy_damage)
+
+                print(f"💢 {enemy.name} наказывает вас за ошибку, нанося {enemy_damage} урона!")
+                died = player.take_damage(enemy_damage)
+                if died:
+                    print("\n💀 Вы погибли!")
+                    return False
+        else:
+            print("\n❌ Неверная команда!")
+            continue
+
+        round_num += 1
+
+    if not enemy.is_alive():
+        print(f"\n🎉 ПОБЕДА! Вы победили {enemy.name}!")
+        player.add_exp(enemy.exp_reward)
+        player.gold += enemy.gold_reward
+        print(f"💰 Получено {enemy.gold_reward} золота!")
+
+        if random.random() < 0.3:
+            trophy = random.choice(["potion", "gold"])
+            if trophy == "potion":
+                potion = Potion("Малое зелье здоровья", 30)
+                player.inventory.append(potion)
+                print(f"🎁 С врага вы нашли {potion.name}!")
+            else:
+                extra_gold = random.randint(10, 30)
+                player.gold += extra_gold
+                print(f"🎁 С врага вы нашли {extra_gold} дополнительного золота!")
+
+        return True
+    return False
+
+
+def main():
+    print("=" * 50)
+    print("ТЕКСТОВАЯ RPG: ПОДЗЕМЕЛЬЯ И ДРАКОНЫ")
+    print("=" * 50)
+    player = generate_character()
+    current_floor = 1
+    room_count = 0
+    player.show_stats()
+
+    while player.hp > 0:
+        room_count += 1
+        if room_count % 5 == 0:
+            current_floor += 1
+            print(f"\n🏰 ВЫ ПОДНЯЛИСЬ НА {current_floor} ЭТАЖ! 🏰")
+            player.heal(player.max_hp // 2)
+
+        print(f"\n{'=' * 40}")
+        print(f"КОМНАТА {room_count}")
+        left_room = generate_room(current_floor)
+        right_room = generate_room(current_floor)
+
+        while True:
+            print("Перед вами развилка:")
+            print(f"(1) Слева: {left_room.description}")
+            print(f"(2) Справа: {right_room.description}")
+            choice = input("\nКуда пойти? (1/2, 'инвентарь', 'статы', 'выйти'): ").lower()
+
+            if choice == "инвентарь":
+                show_inventory(player)
+                continue
+            elif choice == "статы":
+                player.show_stats()
+                continue
+            elif choice == "выйти":
+                print("Спасибо за игру!")
+                return
+            elif choice == "1":
+                left_room.enter(player, current_floor)
+                break
+            elif choice == "2":
+                right_room.enter(player, current_floor)
+                break
+            else:
+                print("Неверная команда!")
+        if player.hp <= 0:
+            break
+
+    if player.hp <= 0:
+        print("\n💀 ВЫ ПОГИБЛИ! 💀")
+        print(f"Вы достигли {current_floor} этажа и прошли {room_count - 1} комнат.")
+        print("Игра окончена.")
+
+
+if __name__ == "__main__":
+    main()
